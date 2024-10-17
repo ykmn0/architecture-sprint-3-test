@@ -1,0 +1,119 @@
+openapi: 3.0.0
+info:
+  title: Smart Home Device Management API
+  description: API для управления устройствами умного дома
+  version: 1.0.0
+servers:
+  - url: https://api.smart-home.com/v1
+    description: Production server
+  - url: http://localhost:8080
+    description: Local server
+
+paths:
+  /devices:
+    get:
+      summary: Получить список всех устройств пользователя
+      tags:
+        - Devices
+      responses:
+        '200':
+          description: Список устройств
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Device'
+        '401':
+          description: Неавторизован
+
+  /devices/{deviceId}:
+    get:
+      summary: Получить текущее состояние устройства
+      tags:
+        - Devices
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          description: ID устройства
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Текущее состояние устройства
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '404':
+          description: Устройство не найдено
+        '401':
+          description: Неавторизован
+
+  /devices/{deviceId}/command:
+    post:
+      summary: Отправить команду на устройство
+      tags:
+        - Devices
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          description: ID устройства
+          schema:
+            type: string
+      requestBody:
+        description: Тип команды (включение/выключение/установка температуры)
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Command'
+      responses:
+        '200':
+          description: Команда успешно отправлена
+        '400':
+          description: Неверный запрос
+        '404':
+          description: Устройство не найдено
+        '401':
+          description: Неавторизован
+
+components:
+  schemas:
+    Device:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          description: Уникальный идентификатор устройства
+        name:
+          type: string
+          description: Название устройства
+        type:
+          type: string
+          description: Тип устройства (например, термостат)
+        currentState:
+          type: string
+          description: Текущее состояние устройства (включено/выключено, текущая температура)
+        lastUpdated:
+          type: string
+          format: date-time
+          description: Последнее обновление состояния устройства
+    Command:
+      type: object
+      properties:
+        commandType:
+          type: string
+          enum:
+            - turn_on
+            - turn_off
+            - set_temperature
+          description: Тип команды
+        payload:
+          type: object
+          properties:
+            temperature:
+              type: number
+              description: Температура, если команда — установка температуры

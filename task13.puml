@@ -1,0 +1,39 @@
+@startuml
+entity "Device" as device {
+  * device_id : UUID
+  --
+  name : String
+  type : String
+  current_state : String
+  last_updated : DateTime
+}
+
+entity "User" as user {
+  * user_id : UUID
+  --
+  username : String
+  email : String
+}
+
+entity "Command" as command {
+  * command_id : UUID
+  --
+  command_type : String
+  command_payload : String
+  command_time : DateTime
+}
+
+entity "Event" as event {
+  * event_id : UUID
+  --
+  event_type : String
+  event_payload : String
+  event_time : DateTime
+}
+
+' Связи между сущностями
+user ||--o{ device : "управляет"
+device ||--o{ command : "получает"
+device ||--o{ event : "создаёт"
+
+@enduml

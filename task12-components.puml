@@ -1,0 +1,33 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_TOP_DOWN()
+
+' Микросервис "Управление устройствами"
+Container_Boundary(deviceService, "Сервис Управления Устройствами") {
+    
+    ' Компоненты микросервиса
+    Component(api, "API", "Spring MVC", "Принимает HTTP-запросы на управление устройствами")
+    Component(commandHandler, "Command Handler", "Spring Service", "Обрабатывает команды управления устройствами")
+    Component(stateManager, "Device State Manager", "Spring Service", "Управляет состоянием устройств")
+    Component(deviceComm, "Device Communication Module", "Spring Service", "Отправляет команды устройствам")
+    Component(eventPublisher, "Event Publisher", "Kafka Publisher", "Публикует события о состоянии устройств")
+    
+    ' Взаимодействия компонентов внутри микросервиса
+    api -> commandHandler : "Передача команды управления"
+    commandHandler -> stateManager : "Обновление состояния устройства"
+    stateManager -> deviceComm : "Отправка команды устройству"
+    deviceComm -> deviceComm : "Коммуникация с устройством"
+    stateManager -> eventPublisher : "Публикация события об изменении состояния"
+}
+
+' Внешние взаимодействия микросервиса
+Person(user, "Пользователь")  
+System(kafka, "Kafka", "Шина данных для асинхронных событий")  
+SystemDb(deviceDb, "PostgreSQL", "Хранение состояния устройств")
+
+user -> api : "Отправка команды управления устройством"
+api -> deviceDb : "Чтение/запись состояния устройства"
+eventPublisher -> kafka : "Публикация события в Kafka"
+
+@enduml

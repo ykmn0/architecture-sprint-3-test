@@ -1,0 +1,39 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_TOP_DOWN()
+
+' Определение акторов и компонентов
+Person(user, "Пользователь", "Взаимодействует через API Gateway")
+
+' API Gateway
+Container(apiGateway, "API Gateway", "Kong/Nginx", "Управляет запросами пользователей")
+
+' Шина данных (Kafka)
+Container(kafkaBus, "Шина данных (Kafka)", "Kafka", "Асинхронная передача сообщений между микросервисами") 
+
+' Микросервисы
+Container_Boundary(microservices, "Микросервисы") {
+    Container(deviceService, "Сервис Управления Устройствами", "Spring Boot", "Включение/выключение отопления, установка температуры")
+    Container(tempService, "Сервис Мониторинга Температуры", "Spring Boot", "Сбор и отображение данных с датчиков")
+}
+
+' Базы данных для каждого сервиса
+ContainerDb(deviceDb, "Device DB", "PostgreSQL", "База данных управления устройствами")
+ContainerDb(tempDb, "Temperature DB", "PostgreSQL", "База данных температурных данных")
+
+' Взаимодействие между компонентами
+user -> apiGateway : "Запросы на управление устройствами и просмотр данных"
+apiGateway -> deviceService : "Запросы на управление отоплением"
+apiGateway -> tempService : "Запросы на просмотр температуры"
+
+deviceService -> kafkaBus : "Отправка событий управления устройствами"
+tempService -> kafkaBus : "Отправка событий данных с датчиков"
+kafkaBus -> deviceService : "Получение событий для обработки"
+
+deviceService -> deviceDb : "Чтение/запись данных об устройстве"
+tempService -> tempDb : "Чтение/запись данных о температуре"
+
+infraService -> kafkaBus : "Отправка/получение системных событий"
+
+@enduml
