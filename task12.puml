@@ -1,0 +1,29 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+' Установка направления сверху вниз
+LAYOUT_TOP_DOWN()
+
+' Описание пользователей и устройств
+Person(user, "Пользователь", "Управляет отоплением и температурой")  
+Person(sensor, "Температурный датчик", "Отправляет данные о температуре")
+
+' Контейнерная граница для микросервисов
+System_Boundary(microservices, "Микросервисы") {
+    Container(deviceService, "Управление Устройствами", "Spring Boot", "Включение/выключение отопления, установка температуры")
+    Container(tempService, "Мониторинг Температуры", "Spring Boot", "Сбор и отображение данных с датчиков")
+}
+
+' Базы данных для каждого сервиса
+ContainerDb(deviceDb, "Device DB", "PostgreSQL", "База данных управления устройствами")
+ContainerDb(tempDb, "Temperature DB", "PostgreSQL", "База данных температурных данных")
+
+' Взаимодействия
+user -> deviceService : "Управление отоплением"
+user -> tempService : "Просмотр текущей температуры"
+sensor -> tempService : "Передача данных о температуре"
+
+deviceService -> deviceDb : "Чтение/запись настроек устройства"
+tempService -> tempDb : "Чтение/запись температурных данных"
+
+@enduml

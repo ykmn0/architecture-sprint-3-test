@@ -1,0 +1,22 @@
+@startuml
+actor User
+boundary API
+control CommandHandler
+control DeviceStateManager
+control EventPublisher
+entity DeviceDb
+queue Kafka
+
+User -> API : POST /device/{id}/command
+API -> CommandHandler : handleCommand(command)
+CommandHandler -> DeviceStateManager : updateDeviceState(deviceId, newState)
+DeviceStateManager -> DeviceDb : update(deviceId, newState)
+DeviceDb --> DeviceStateManager : confirmation
+DeviceStateManager --> CommandHandler : confirmation
+CommandHandler -> EventPublisher : publishEvent(deviceEvent)
+EventPublisher -> Kafka : send(deviceEvent)
+Kafka --> EventPublisher : confirmation
+EventPublisher --> CommandHandler : event published
+CommandHandler --> API : success response
+API --> User : Command executed
+@enduml

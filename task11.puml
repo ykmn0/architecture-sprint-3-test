@@ -1,0 +1,21 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_TOP_DOWN()
+
+' Actors
+Person(user, "Пользователь")  
+Person(sensor, "Температурный датчик")  
+
+' System
+System(monolith, "Монолитное приложение", "Java приложение для управления умным домом")  
+
+' Database
+SystemDb(database, "PostgreSQL", "База данных для хранения данных пользователей и температуры")
+
+' Interactions
+user -> monolith : "Взаимодействие через веб-интерфейс (управление и просмотр)"
+sensor -> monolith : "Отправка данных о температуре"
+monolith -> database : "Чтение и запись данных пользователей и температурных показателей"
+
+@enduml

@@ -1,0 +1,30 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_TOP_DOWN()
+
+' Actors
+Person(user, "Пользователь", "Управляет отоплением и просматривает данные о температуре")  
+Person(sensor, "Температурный датчик", "Отправляет данные о температуре")
+
+' System
+System_Boundary(monolith, "Монолитное приложение (Smart Home)") {
+    System_Ext(deviceManagement, "Управление Устройствами", "Управление отоплением и температурой")
+    System_Ext(tempMonitoring, "Мониторинг Температуры", "Сбор и отображение данных с датчиков")
+    System_Ext(userAuth, "Пользователи и Авторизация", "Управление пользователями и правами доступа")
+    System_Ext(infrastructure, "Инфраструктура и Система", "Обеспечение работы системы и взаимодействия с внешними компонентами")
+}
+
+' Database
+SystemDb(database, "PostgreSQL", "База данных для хранения данных пользователей и температурных показателей")
+
+' Interactions
+user -> deviceManagement : "Включение/выключение отопления"
+user -> tempMonitoring : "Просмотр текущей температуры"
+deviceManagement -> database : "Чтение и запись настроек температуры"
+tempMonitoring -> database : "Чтение данных с датчиков"
+sensor -> tempMonitoring : "Передача данных о температуре"
+user -> userAuth : "Авторизация для доступа к системе"
+infrastructure -> database : "Управление и взаимодействие с данными"
+
+@enduml

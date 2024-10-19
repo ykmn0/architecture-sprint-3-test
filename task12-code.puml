@@ -1,0 +1,39 @@
+@startuml
+class CommandHandler {
+    + handleCommand(command: DeviceCommand): void
+    - validateCommand(command: DeviceCommand): boolean
+}
+
+class DeviceStateManager {
+    + updateDeviceState(deviceId: String, newState: DeviceState): void
+    + getDeviceState(deviceId: String): DeviceState
+}
+
+class EventPublisher {
+    + publishEvent(event: DeviceEvent): void
+}
+
+class DeviceCommand {
+    - deviceId: String
+    - commandType: String
+    - payload: Map<String, String>
+}
+
+class DeviceState {
+    - deviceId: String
+    - currentState: String
+}
+
+class DeviceEvent {
+    - eventId: String
+    - deviceId: String
+    - eventType: String
+    - eventPayload: Map<String, String>
+}
+
+CommandHandler -> DeviceStateManager : "Обновляет состояние устройства"
+CommandHandler -> EventPublisher : "Публикует события"
+CommandHandler --> DeviceCommand : "Принимает команды"
+DeviceStateManager --> DeviceState : "Работает с состоянием устройства"
+EventPublisher --> DeviceEvent : "Создаёт и публикует события"
+@enduml
