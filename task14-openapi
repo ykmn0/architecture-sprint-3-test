@@ -80,6 +80,70 @@ paths:
         '401':
           description: Неавторизован
 
+  /devices/{deviceId}/telemetry/latest:
+    get:
+      summary: Получить последние данные телеметрии устройства
+      tags:
+        - Telemetry
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          description: ID устройства
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Последние данные телеметрии устройства
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Telemetry'
+        '404':
+          description: Устройство не найдено
+        '401':
+          description: Неавторизован
+
+  /devices/{deviceId}/telemetry:
+    get:
+      summary: Получить исторические данные телеметрии устройства
+      tags:
+        - Telemetry
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          description: ID устройства
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          required: false
+          description: Начальная дата (формат: YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: false
+          description: Конечная дата (формат: YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Исторические данные телеметрии устройства
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Telemetry'
+        '404':
+          description: Устройство не найдено
+        '401':
+          description: Неавторизован
+
 components:
   schemas:
     Device:
@@ -101,6 +165,7 @@ components:
           type: string
           format: date-time
           description: Последнее обновление состояния устройства
+
     Command:
       type: object
       properties:
@@ -117,3 +182,17 @@ components:
             temperature:
               type: number
               description: Температура, если команда — установка температуры
+
+    Telemetry:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          description: Уникальный идентификатор устройства
+        timestamp:
+          type: string
+          format: date-time
+          description: Время получения данных телеметрии
+        temperature:
+          type: number
+          description: Температура устройства
